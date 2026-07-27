@@ -11,6 +11,9 @@ struct PropertyColumn: View {
     @Binding var property: DraftProperty
     let allProperties: [DraftProperty]
 
+    @State private var showingCustomLabelPrompt = false
+    @State private var customLabelInput = ""
+
     var body: some View {
         Menu {
             // Basic Types
@@ -83,8 +86,38 @@ struct PropertyColumn: View {
                     .disabled(isDisabled(for: .sensor(type)))
                 }
             }
+
+            Divider()
+
+            // Text Types
+            Menu("Text") {
+                ForEach(PropertyKey.TextType.allCases, id: \.self) { type in
+                    Button {
+                        setKey(.text(type))
+                    } label: {
+                        Text(type.label)
+                    }
+                    .disabled(isDisabled(for: .text(type)))
+                }
+            }
+
+            Button("Custom…") {
+                showingCustomLabelPrompt = true
+            }
         } label: {
             Text(property.key?.label ?? "Select a Property")
+        }
+        .alert("New Custom Property", isPresented: $showingCustomLabelPrompt) {
+            TextField("Label", text: $customLabelInput)
+            Button("Add") {
+                let label = customLabelInput.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !label.isEmpty else { return }
+                setKey(.custom(label: label))
+                customLabelInput = ""
+            }
+            Button("Cancel", role: .cancel) {
+                customLabelInput = ""
+            }
         }
     }
 
@@ -102,9 +135,19 @@ struct PropertyColumn: View {
             if case .range = property.value {
                 property.value = .single(nil)
             }
+            if case .text = property.value {
+                property.value = .single(nil)
+            }
         case .range:
             if case .single = property.value {
                 property.value = .range(min: nil, max: nil)
+            }
+            if case .text = property.value {
+                property.value = .range(min: nil, max: nil)
+            }
+        case .text:
+            if case .text = property.value {} else {
+                property.value = .text("")
             }
         }
 

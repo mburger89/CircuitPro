@@ -13,54 +13,36 @@ struct LayoutNavigatorView: View {
     enum LayoutNavigatorTab: String, Displayable {
         case footprints
         case layers
-        
+
         var label: String {
             return self.rawValue.capitalized
         }
     }
 
     @State private var selectedTab: LayoutNavigatorTab = .footprints
-    @Namespace private var namespace
 
     var body: some View {
         VStack(spacing: 0) {
-            // Tab selection bar (unchanged)
-            HStack(spacing: 2.5) {
-                ForEach(LayoutNavigatorTab.allCases, id: \.self) { tab in
-                    Button {
-                        withAnimation(.smooth(duration: 0.3)) {
-                            selectedTab = tab
-                        }
-                    } label: {
-                        Text(tab.label)
-                            .padding(.vertical, 2.5)
-                            .padding(.horizontal, 7.5)
-                            .background {
-                                if selectedTab == tab {
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .fill(.blue)
-                                        .matchedGeometryEffect(id: "selection-background", in: namespace)
-                                }
-                            }
-                            .foregroundStyle(selectedTab == tab ? .white : .secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
+            SegmentedPicker(
+                options: LayoutNavigatorTab.allCases,
+                selection: $selectedTab
+            ) { tab in
+                tab.label
             }
-            .frame(height: 28)
-            .font(.callout)
-
-            Divider().foregroundStyle(.quinary)
 
             // --- MODIFIED: Switch now uses the new, dedicated views ---
             switch selectedTab {
             case .footprints:
                 FootprintNavigatorView()
-                    .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
-       
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .leading), removal: .move(edge: .leading)))
+
             case .layers:
                 LayerNavigatorListView()
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
             }
         }
     }

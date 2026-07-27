@@ -39,6 +39,30 @@ enum PrimitiveGeometry {
                 clockwise: false
             )
             return path
+        case .arc(let arc):
+            let path = CGMutablePath()
+            path.addArc(
+                center: .zero,
+                radius: arc.radius,
+                startAngle: arc.startAngle,
+                endAngle: arc.endAngle,
+                clockwise: false
+            )
+            if arc.filled {
+                path.closeSubpath()
+            }
+            return path
+        case .polyline(let polyline):
+            let path = CGMutablePath()
+            guard let first = polyline.points.first else { return path }
+            path.move(to: first)
+            for point in polyline.points.dropFirst() {
+                path.addLine(to: point)
+            }
+            if polyline.isClosed {
+                path.closeSubpath()
+            }
+            return path
         }
     }
 
