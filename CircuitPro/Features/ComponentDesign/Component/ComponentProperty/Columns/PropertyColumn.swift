@@ -102,9 +102,19 @@ struct PropertyColumn: View {
             if case .range = property.value {
                 property.value = .single(nil)
             }
+            if case .text = property.value {
+                property.value = .single(nil)
+            }
         case .range:
             if case .single = property.value {
                 property.value = .range(min: nil, max: nil)
+            }
+            if case .text = property.value {
+                property.value = .range(min: nil, max: nil)
+            }
+        case .text:
+            if case .text = property.value {} else {
+                property.value = .text("")
             }
         }
 
