@@ -28,6 +28,20 @@ struct PrimitiveView: CKView {
             )
             .position(line.position)
             .rotation(line.rotation)
+        case .arc(let arc):
+            ArcView(
+                arc: arc,
+                isEditable: isEditable
+            )
+            .position(arc.position)
+            .rotation(arc.rotation)
+        case .polyline(let polyline):
+            PolylineView(
+                polyline: polyline,
+                isEditable: isEditable
+            )
+            .position(polyline.position)
+            .rotation(polyline.rotation)
         }
     }
 
