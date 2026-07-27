@@ -15,11 +15,12 @@ struct InspectorValueColumn: View {
     @State private var editedValue: String = ""
     @State private var editedMinValue: String = ""
     @State private var editedMaxValue: String = ""
-    
+    @State private var editedTextValue: String = ""
+
     // Focus state to detect when the user is done editing.
     @FocusState private var focusedField: FocusableField?
     private enum FocusableField: Hashable {
-        case single, min, max
+        case single, min, max, text
     }
 
     var body: some View {
@@ -29,20 +30,25 @@ struct InspectorValueColumn: View {
                     .focused($focusedField, equals: .single)
                     .textFieldStyle(.roundedBorder)
                     .multilineTextAlignment(.trailing)
-            } else {
+            } else if property.key.allowedValueType == .range {
                 HStack {
                     TextField("Min", text: $editedMinValue)
                         .focused($focusedField, equals: .min)
                         .textFieldStyle(.roundedBorder)
                         .multilineTextAlignment(.trailing)
-                    
+
                     Text("-").foregroundStyle(.secondary)
-                    
+
                     TextField("Max", text: $editedMaxValue)
                         .focused($focusedField, equals: .max)
                         .textFieldStyle(.roundedBorder)
                         .multilineTextAlignment(.trailing)
                 }
+            } else {
+                TextField("Value", text: $editedTextValue)
+                    .focused($focusedField, equals: .text)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
             }
         }
         // When the view first appears, sync local state from the model.
@@ -72,6 +78,8 @@ struct InspectorValueColumn: View {
         case .range(let minVal, let maxVal):
             self.editedMinValue = minVal?.description ?? ""
             self.editedMaxValue = maxVal?.description ?? ""
+        case .text(let val):
+            self.editedTextValue = val
         }
     }
 
@@ -88,6 +96,9 @@ struct InspectorValueColumn: View {
             let numericMin = Double(editedMinValue)
             let numericMax = Double(editedMaxValue)
             newPropertyValue = .range(min: numericMin, max: numericMax)
+
+        case .text:
+            newPropertyValue = .text(editedTextValue)
         }
         
         // Only update the model if the value has actually changed.

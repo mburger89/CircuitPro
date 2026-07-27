@@ -10,11 +10,13 @@ import Foundation
 enum PropertyValue: Codable, Equatable, Hashable {
     case single(Double?)
     case range(min: Double?, max: Double?)
+    case text(String)
 
     var type: PropertyValueType {
         switch self {
         case .single: return .single
         case .range: return .range
+        case .text: return .text
         }
     }
 
@@ -24,6 +26,8 @@ enum PropertyValue: Codable, Equatable, Hashable {
             if let value { return "\(value)" } else { return "" }
         case let .range(min, max):
             return "\(min ?? 0) to \(max ?? 0)"
+        case .text(let value):
+            return value
         }
     }
 
@@ -33,7 +37,7 @@ enum PropertyValue: Codable, Equatable, Hashable {
     }
 
     private enum ValueType: String, Codable {
-        case single, range
+        case single, range, text
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +52,9 @@ enum PropertyValue: Codable, Equatable, Hashable {
             let min = try container.decodeIfPresent(Double.self, forKey: .min)
             let max = try container.decodeIfPresent(Double.self, forKey: .max)
             self = .range(min: min, max: max)
+        case .text:
+            let value = try container.decode(String.self, forKey: .value)
+            self = .text(value)
         }
     }
 
@@ -62,6 +69,9 @@ enum PropertyValue: Codable, Equatable, Hashable {
             try container.encode(ValueType.range, forKey: .type)
             try container.encodeIfPresent(min, forKey: .min)
             try container.encodeIfPresent(max, forKey: .max)
+        case .text(let value):
+            try container.encode(ValueType.text, forKey: .type)
+            try container.encode(value, forKey: .value)
         }
     }
 }
@@ -69,6 +79,7 @@ enum PropertyValue: Codable, Equatable, Hashable {
 enum PropertyValueType: String, CaseIterable, Identifiable, Codable {
     case single
     case range
+    case text
 
     var id: String { rawValue }
 
@@ -76,6 +87,7 @@ enum PropertyValueType: String, CaseIterable, Identifiable, Codable {
         switch self {
         case .single: return "Single Value"
         case .range: return "Range"
+        case .text: return "Text"
         }
     }
 }

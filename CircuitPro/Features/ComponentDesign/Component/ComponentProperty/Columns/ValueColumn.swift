@@ -15,7 +15,7 @@ struct ValueColumn: View {
             if allowedValueType == .single {
                 TextField("Value", value: singleBinding, format: .number)
                     .textFieldStyle(.roundedBorder)
-            } else {
+            } else if allowedValueType == .range {
                 HStack {
                     TextField("Min", value: minBinding, format: .number)
                         .textFieldStyle(.roundedBorder)
@@ -24,6 +24,9 @@ struct ValueColumn: View {
                     TextField("Max", value: maxBinding, format: .number)
                         .textFieldStyle(.roundedBorder)
                 }
+            } else {
+                TextField("Value", text: textBinding)
+                    .textFieldStyle(.roundedBorder)
             }
         }
     }
@@ -77,6 +80,21 @@ struct ValueColumn: View {
                 if case .range(let minVal, _) = property.value {
                     property.value = .range(min: minVal, max: newMax)
                 }
+            }
+        )
+    }
+
+    private var textBinding: Binding<String> {
+        Binding<String>(
+            get: {
+                if case .text(let val) = property.value {
+                    return val
+                } else {
+                    return ""
+                }
+            },
+            set: { newVal in
+                property.value = .text(newVal)
             }
         )
     }
