@@ -14,6 +14,8 @@ enum PropertyKey: Hashable, Codable, Identifiable {
     case rf(RFType)
     case battery(BatteryType)
     case sensor(SensorType)
+    case text(TextType)
+    case custom(label: String)
 
     var id: String {
         switch self {
@@ -23,6 +25,8 @@ enum PropertyKey: Hashable, Codable, Identifiable {
         case .rf(let type): return "rf.\(type.rawValue)"
         case .battery(let type): return "bat.\(type.rawValue)"
         case .sensor(let type): return "sensor.\(type.rawValue)"
+        case .text(let type): return "text.\(type.rawValue)"
+        case .custom(let label): return "custom.\(label)"
 
         }
     }
@@ -35,6 +39,8 @@ enum PropertyKey: Hashable, Codable, Identifiable {
         case .rf(let type): return type.label
         case .battery(let type): return type.label
         case .sensor(let type): return type.label
+        case .text(let type): return type.label
+        case .custom(let label): return label
         }
     }
 
@@ -106,6 +112,20 @@ enum PropertyKey: Hashable, Codable, Identifiable {
             }
         }
     }
+
+    enum TextType: String, CaseIterable, Codable {
+        case footprint, datasheet, description, manufacturer, manufacturerPartNumber
+
+        var label: String {
+            switch self {
+            case .footprint: return "Footprint"
+            case .datasheet: return "Datasheet"
+            case .description: return "Description"
+            case .manufacturer: return "Manufacturer"
+            case .manufacturerPartNumber: return "Manufacturer Part Number"
+            }
+        }
+    }
 }
 
 extension PropertyKey {
@@ -113,6 +133,8 @@ extension PropertyKey {
         switch self {
         case .temperature:
             return .range
+        case .text, .custom:
+            return .text
         default:
             return .single
         }
@@ -170,6 +192,10 @@ extension PropertyKey {
             case .offsetVoltage: return [.volt]
             case .hysteresis: return [.celsius]
             }
+
+        // TEXT / CUSTOM
+        case .text, .custom:
+            return []
         }
     }
 }
